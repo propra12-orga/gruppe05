@@ -14,7 +14,7 @@ public class Arena extends JPanel
 		if(size == "small") 
 		{
 			this.height = 9;
-			this.width = 11;
+			this.width = 13;
 		}
 		else if(size == "medium")
 		{

@@ -4,15 +4,12 @@ import javax.swing.JFrame;
 
 public class Test {
 
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
+	public static void main(String[] args) 
+	{
 		
 		JFrame frame = new JFrame();
 		
-		Arena arena = new Arena("verylarge", 1, 70);
+		Arena arena = new Arena("large", 1, 70);
 		
 		frame.setResizable(false);
 		

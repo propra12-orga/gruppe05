@@ -3,7 +3,6 @@ package Bomberman;
 import java.awt.Image;
 import java.awt.Toolkit;
 
-import javax.swing.ImageIcon;
 
 public class DestructiveBlock extends Block
 {
