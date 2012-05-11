@@ -174,7 +174,7 @@ public class Heinz extends JPanel implements Runnable, KeyListener {
 	    
 	      catch(InterruptedException ex)
 	      {
-	        //nothing
+	    	  
 	      }
 	      Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
 	    }
