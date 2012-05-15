@@ -11,7 +11,7 @@ public class Test {
 		
 		Arena arena = new Arena("large", 1, 70);
 		
-		Heinz heinz = new Heinz();
+		Heinz heinz = new Heinz(arena.getBreite(), arena.getHoehe());
 		
 		frame.setResizable(false);
 		
@@ -22,8 +22,6 @@ public class Test {
 		heinz.add(arena);
 		
 		frame.addKeyListener(heinz);
-		
-		System.out.print(arena.getSize());
 		frame.pack();
 		
 		frame.setVisible(true);

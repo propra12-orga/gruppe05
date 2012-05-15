@@ -150,4 +150,14 @@ public class Arena extends JPanel
 					g.drawImage(arena[i][j].getImage(), 40*i, 40*j, this);
 			}
 	}
+	
+	public int getBreite()
+	{
+		return width * 40;
+	}
+	
+	public int getHoehe()
+	{
+		return height * 40;
+	}
 }
