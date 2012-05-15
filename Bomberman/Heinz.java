@@ -61,20 +61,21 @@ public class Heinz extends JPanel implements Runnable, KeyListener {
 	public void getImages()
 
 	{
+		//Lade Images
 		img = new Image[12];
 		
-		img[0] = Toolkit.getDefaultToolkit().getImage("images/player/human/bomber1_left.png");
-		img[1] = Toolkit.getDefaultToolkit().getImage("images/player/human/bomber1_left_move.png");
-		img[2] = Toolkit.getDefaultToolkit().getImage("images/player/human/bomber1_left_move1.png");
-		img[3] = Toolkit.getDefaultToolkit().getImage("images/player/human/bomber1_right.png");
-		img[4] = Toolkit.getDefaultToolkit().getImage("images/player/human/bomber1_right_move.png");
-		img[5] = Toolkit.getDefaultToolkit().getImage("images/player/human/bomber1_right_move1.png");
-		img[6] = Toolkit.getDefaultToolkit().getImage("images/player/human/bomber1_front.png");
-		img[7] = Toolkit.getDefaultToolkit().getImage("images/player/human/bomber1_front_move.png");
-		img[8] = Toolkit.getDefaultToolkit().getImage("images/player/human/bomber1_front_move1.png");
-		img[9] = Toolkit.getDefaultToolkit().getImage("images/player/human/bomber1_back.png");
-		img[10] = Toolkit.getDefaultToolkit().getImage("images/player/human/bomber1_back_move.png");
-		img[11] = Toolkit.getDefaultToolkit().getImage("images/player/human/bomber1_back_move1.png");
+		img[0] = Toolkit.getDefaultToolkit().getImage("images/player/p1/bomber1_left.png");
+		img[1] = Toolkit.getDefaultToolkit().getImage("images/player/p1/bomber1_left_move.png");
+		img[2] = Toolkit.getDefaultToolkit().getImage("images/player/p1/bomber1_left_move1.png");
+		img[3] = Toolkit.getDefaultToolkit().getImage("images/player/p1/bomber1_right.png");
+		img[4] = Toolkit.getDefaultToolkit().getImage("images/player/p1/bomber1_right_move.png");
+		img[5] = Toolkit.getDefaultToolkit().getImage("images/player/p1/bomber1_right_move1.png");
+		img[6] = Toolkit.getDefaultToolkit().getImage("images/player/p1/bomber1_front.png");
+		img[7] = Toolkit.getDefaultToolkit().getImage("images/player/p1/bomber1_front_move.png");
+		img[8] = Toolkit.getDefaultToolkit().getImage("images/player/p1/bomber1_front_move1.png");
+		img[9] = Toolkit.getDefaultToolkit().getImage("images/player/p1/bomber1_back.png");
+		img[10] = Toolkit.getDefaultToolkit().getImage("images/player/p1/bomber1_back_move.png");
+		img[11] = Toolkit.getDefaultToolkit().getImage("images/player/p1/bomber1_back_move1.png");
 	}
 	
 	private void animate()

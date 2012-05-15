@@ -32,7 +32,7 @@ public class Arena extends JPanel
 			this.width = 23;
 		}
 		
-		//erstellt ein neues Spielfeld mit der Hoehe height und der Breite width;
+		//erstellt ein Spielfeld mit der Hoehe height und der Breite width;
 		arena = new Block[width][height];
 		
 		this.style = style;

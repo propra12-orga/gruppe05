@@ -6,7 +6,7 @@ public class Test {
 
 	public static void main(String[] args) 
 	{
-		
+		//test
 		JFrame frame = new JFrame();
 		
 		Arena arena = new Arena("large", 1, 70);
