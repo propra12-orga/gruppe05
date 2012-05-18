@@ -13,31 +13,7 @@ public class Player extends Objekt
 
 	public void doLogic(long delta) 
 	{
-		super.doLogic(delta);
-		
-		if(getX()<0)
-		{
-			setHorizontalSpeed(0);
-			x = 0;
-		}
-
-		if(getY()<0)
-		{
-			setHorizontalSpeed(0);
-			y = 0;
-		}
-		
-		if(getX()+getWidth()>parent.getWidth())
-		{
-			setVerticalSpeed(0);
-			x = parent.getWidth()-getWidth();
-		}
-		
-		if(getY()+getHeight()>parent.getHeight())
-		{
-			setVerticalSpeed(0);
-			y = parent.getHeight()-getHeight();
-		}		
+		super.doLogic(delta);		
 	}
 
 	public void setHorizontalSpeed(double dx)
