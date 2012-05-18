@@ -16,6 +16,9 @@ public class Player extends Objekt
 		super.doLogic(delta);		
 	}
 
+	//Abhaenig von der Bewegungsrichtung des Spielers wird die Animation gesetzt.
+	//Wenn der Spieler z.b. nach unten laeuft, so wird nur die Animation des nach unten laufenden
+	//Spieler angezeigt (also mit setLoop gesetzt)
 	public void setHorizontalSpeed(double dx)
 	{
 		super.setHorizontalSpeed(dx);
@@ -31,7 +34,10 @@ public class Player extends Objekt
 		else if(getHorizontalSpeed() == 0 && getVerticalSpeed() == 0)
 			setLoop(6, 6);
 	}
-	
+
+	//Abhaenig von der Bewegungsrichtung des Spielers wird die Animation gesetzt.
+	//Wenn der Spieler z.b. nach unten laeuft, so wird nur die Animation des nach unten laufenden
+	//Spieler angezeigt (also mit setLoop gesetzt)	
 	public void setVerticalSpeed(double dy)
 	{
 		super.setVerticalSpeed(dy);
@@ -52,6 +58,9 @@ public class Player extends Objekt
 	{
 		if(this.intersects(s))
 		{
+			//Kollision mit den soliden Bloecken. Dafuer gibt es 4 if-Bedinungen um zu pruefen, von
+			//welcher Seite (links, rechts, unten, oben) die Kollision auftritt. Dann wird die Spielfigur
+			//wieder die alte Position zurueckgesetzt.
 			if(s instanceof SolidBlock)
 			{
 				if(Math.abs((getX() - s.getMaxX())) <= 5 && getX() < s.getMaxX() && ( getY() < s.getMaxY() && getMaxY() > s.getY()))
@@ -75,6 +84,15 @@ public class Player extends Objekt
 					return true;
 				}
 				return true;
+			}
+			
+			//Wenn der Spieler mit dem Exit kollidiert ergibt sich true.
+			if(s instanceof Exit)
+			{
+				if(Math.abs(this.getCenterX() - s.getCenterX()) <= 15 && Math.abs(this.getCenterY() - s.getCenterY()) <= 15)
+				{
+					return true;
+				}
 			}
 		}
 		

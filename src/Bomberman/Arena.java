@@ -20,34 +20,53 @@ public class Arena extends JPanel implements Runnable, KeyListener, ActionListen
 	
 	int w, h;
 	
+	//Diese 3 longs speichern Zeitwerte etc., damit das Spiel (relativ) fluessig laeuft
 	long delta = 0;
 	long last = 0;
 	long fps = 0;
 	
+	//Speichert Positionen der Bloecke zur Weiterverarbeitung
+	int [][] bloecke;
+	
+	//Menschl. Spielfigur
 	Player human;
+	
+	//Wir arbeiten mit Vectoren zur besseren Aufzaehlung, Zeichnen etc.
 	Vector<Objekt> actors;
 	Vector<Objekt> painter;
 	
+	//Speichert Bilddateien
 	BufferedImage[] humanImages;
 	BufferedImage[] solidBlocks;
+	BufferedImage[] exitBlock;
+	BufferedImage win_logo;
 	BufferedImage background;
   
+	//Speichert Tastendruecke
 	boolean up;
 	boolean down;
 	boolean left;
 	boolean right;
 	
+	boolean hasWin = false;
+	
+	//Setzt die Geschwindigkeit der Spielfiguren
 	int speed = 140;
+	
 	
 	public Arena(int w, int h)
 	{
+		//Speichert Breite und Hoehe der Arena
 		this.w = w;
 		this.h = h;
 		
+		//Initialisierung
 		init();
 		
+		//Das JPanel bekommt die eingegebene Groesse
 		this.setPreferredSize(new Dimension(w,h));
 		
+		//Die Arena wird in einem eigenen Frame angezeigt
 		frame = new JFrame("Bomber-Heinz");
 		frame.setLocation(100,100);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -56,51 +75,72 @@ public class Arena extends JPanel implements Runnable, KeyListener, ActionListen
 		frame.pack();
 		frame.setVisible(true);
 		
-		
+		//Startet die Spielschleife
 		Thread th = new Thread(this);
 		th.start();
 	}
 
-	private void init() {
-
+	private void init() 
+	{
+		//Speichert die Systemzeit (spaeter Ermitteln, wie lange ein Schleifendurchlauf gedauert hat
 		last = System.nanoTime();
+		
+		//es werden soviele 40x40 Bloecke erstellt, wie die Arena gross ist
+		bloecke = new int[w / 40][h / 40];
 
+		//Laedt Bilddaten
 		humanImages = loadPics("images/player/p1/bomber2.png", 16);
 		solidBlocks = loadPics("images/block_solid.jpg", 1);
+		exitBlock = loadPics("images/block_exit.jpg", 1);
+		win_logo = loadPics("images/win_logo.png", 1) [0];
 		background = loadPics("images/background.jpg",1) [0];
 		
+		//Initialisiert die Vector-Objekte. Actors fuer Ligik und Bewegung und painters zum Zeichnen
 		actors  = new Vector<Objekt>();
 		painter = new Vector<Objekt>();
 		
+		//Erzeugt den menschl. Spieler
 		human  = new Player(humanImages, 45, 45, 200, this);
 		
+		//Erzeugt das Spielfeld 
 		createEdge();
 		classicField();
+		createExit();
 		
-		actors.add(human);			
+		//actors bekommt den menschl. Spieler.
+		actors.add(human);		
 	}
 	
 	public void run() 
 	{
+		//Die Spielschleife wird nur ausgefuehrt, wenn das Arena-Frame auch wirklich angezeigt wird
 		while(frame.isVisible())
 		{
-
+			//Berechnet Zeitintervall etc. fuer fluessigen Spielablauf
 			computeDelta();
 			
+			//Prueft Tastertureingaben, fuehrt Logiken (Kollisionen etc.) aus,
+			//bewegt Objekte und klont actors-Vektoren
 			checkKeys();
 			doLogic();
 			moveObjects();
 			cloneVectors();
 			
+			//Nachdem alle Befehle ausgefuehrt wurden, zeichnet sich das veraenderte Spielfeld
 			repaint();
 			
-		  try 
-		  {
+			//Nach jedem Schleifendurchlauf wartet Java 10 Millisekunden. (Auch fuer fluessigen Spiellauf)
+			try 
+			{
 				Thread.sleep(10);
-		  } catch (InterruptedException e) {}	
+			} catch (InterruptedException e) {}	
 		}		
 	}
 
+	//Klont die actors-Vektoren (Also alle Objekte) und schreibt sie in painter.
+	//Wir benutzen die Vektoren painter nur zum Zeichnen. Wuerde man actors
+	//zum zeichnen benutzen, koennten Laufzeitfehler auftreten, da in actors auch
+	//Logik ausgefuehrt wird
 	@SuppressWarnings("unchecked")
 	private void cloneVectors()
 	{
@@ -110,6 +150,8 @@ public class Arena extends JPanel implements Runnable, KeyListener, ActionListen
 	
 	private void moveObjects() 
 	{		
+		//Jedes Objekt aus actors wird aufgerufen. Solange ein Vektor noch einen
+		//Nachfolger hat wird die Schleife ausgefuehrt. Jedes Vektor-Objekt ruft seine move-Methode auf.
 		for(ListIterator<Objekt> it = actors.listIterator();it.hasNext();)
 		{
 			Objekt r = it.next();
@@ -118,13 +160,19 @@ public class Arena extends JPanel implements Runnable, KeyListener, ActionListen
 	}
 
 	private void doLogic() 
-	{		
+	{	
+		//Boolscher Wert um zu pruefen, ob Objekte kollidiert sind.
+		boolean collide;
+		
+		//Jedes Objekt aus actors wird aufgerufen. Solange ein Vektor noch einen
+		//Nachfolger hat wird die Schleife ausgefuehrt. Jedes Vektor-Objekt ruft seine logic-Methode auf.
 		for(ListIterator<Objekt> it = actors.listIterator();it.hasNext();)
 		{
 			Objekt r = it.next();
 			r.doLogic(delta);
 		}
 		
+		//Prueft je zwei Objekte aus actors auf Kollision miteinander.
 		for (int i = 0; i < actors.size(); i++)
 		{
 			for(int j = i + 1; j < actors.size(); j++)
@@ -132,11 +180,22 @@ public class Arena extends JPanel implements Runnable, KeyListener, ActionListen
 				Objekt ob1 = actors.elementAt(i);
 				Objekt ob2 = actors.elementAt(j);
 				
-				ob1.collidedWith(ob2);
+				//Kollidieren zwei Objekte, wird collide true gesetzt.
+				collide = ob1.collidedWith(ob2);
+				
+				//Prueft, ob der Spieler human auf den Ausgang gelaufen ist. Wenn ja, ist das Spiel gewonnen.
+				if(ob1 instanceof Player && ob2 instanceof Exit || ob1 instanceof Exit && ob2 instanceof Player)
+					if(collide)
+					{
+						hasWin = true;
+					}
 			}
 		}
 	}
 	
+	//Prueft die Tastertureingabe. Wurde eine Pfeiltaste gedrueckt, so wird die Geschwindigkeit des Spieler
+	//human entsprechend gesetzt. Wurde keine Taste gedrueckt, so wird die Geschwindigkeit des Spielers
+	//human auf 0 gesetzt.
 	private void checkKeys()
 	{			
 		if(up && !right && !left)
@@ -170,6 +229,7 @@ public class Arena extends JPanel implements Runnable, KeyListener, ActionListen
 		}		
 	}
 	
+	//Berechnet, wie lange der letzte Schleifendurchlauf gedauert hat. Daraus wird die Framerate FPS errechnet.
 	private void computeDelta() 
 	{
 		delta = System.nanoTime() - last;
@@ -177,40 +237,59 @@ public class Arena extends JPanel implements Runnable, KeyListener, ActionListen
 		fps = ((long) 1e9)/delta;		
 	}
 	
+	//Zeichenkomponente
 	public void paintComponent(Graphics g) 
 	{
-		super.paintComponent(g);
+		super.paintComponent(g);	
 		
+		//Hat der Spieler gewonnen (den Ausgang betreten) zeichnet Graphics nichts neues mehr. Nur eine
+		//Meldung (You Win!) wird ausgegeben.
+		if(hasWin)
+		{	
+			this.setBackground(Color.black);
+			g.drawImage(win_logo, (w / 2) - 200, 100, this);
+			return;
+		}	
+				
+		//Zeichnet den Hintergrund
 		g.drawImage(background, 0, 0, this);
-		
+
+		//Jedes Objekt aus painters ruft seine draw-Methode auf.
 		for (ListIterator<Objekt> it = painter.listIterator(); it.hasNext();) 
 		{
 			Objekt r = it.next();
 			r.drawObjects(g);
-		}		
+		}
+
 	}
 		
+	//Laden der Bilddateien
 	private BufferedImage[] loadPics(String path, int pics)
 	{
-		
+		//Bilder werden in einem Array gespeichert (fuer Animationen)
 		BufferedImage[] anim = new BufferedImage[pics];
 		BufferedImage source = null;
 		
+		//Die URL / Der Pfad der zu ladenden Bilddatei.
 		URL pic_url = getClass().getClassLoader().getResource(path);
 
 		try 
 		{
+			//Liest die Datei ein
 			source = ImageIO.read(pic_url);
 		} catch (IOException e) {}
 		
 		for(int x=0;x<pics;x++)
 		{
+			//Aus einem Bild (Filmstreifen) werden mehrere (quadratische) Teilbilder herausgeschnitten
+			//fuer moegliche Animationen
 			anim[x] = source.getSubimage(x*source.getWidth()/pics, 0, source.getWidth()/pics, source.getHeight());
 		}
 		
 		return anim;
 	}
 
+	//Prueft KeyEvents. 
 	public void keyPressed(KeyEvent e) 
 	{	
 		if(e.getKeyCode()==KeyEvent.VK_UP)
@@ -265,6 +344,7 @@ public class Arena extends JPanel implements Runnable, KeyListener, ActionListen
 		
 	}
 
+	//Erzeugt den Spielfeldrand (solide Bloecke)
 	private void createEdge()
 	{	
 		for(int i = 0; i < w; i = i + 40)
@@ -274,36 +354,37 @@ public class Arena extends JPanel implements Runnable, KeyListener, ActionListen
 				{
 					SolidBlock solid = new SolidBlock(solidBlocks, i, j, 1000, this);
 					actors.add(solid);
+					bloecke[i / 40][j / 40] = 1;
 				}
 				else if(j == 0 || j == h - 40)
 				{
 					SolidBlock solid = new SolidBlock(solidBlocks, i, j, 1000, this);
 					actors.add(solid);
+					bloecke[i / 40][j / 40] = 1;
 				}
+				else
+					bloecke[i / 40][j / 40] = 0;
 			}
 	}
 	
-	//Folgender Code muss noch implementiert werden.
-	
-	/*
+	//Erzeugt einen zufaellig gesetzten Ausgang Exit
 	private void createExit()
 	{
 		
 		int exit_x;
 		int exit_y;
 		//Der Ausgang soll zufaellig platziert werden. Dabei betraegt der Abstand zum Arena-Rand mind. 2 Bloecke.
-		exit_x = (int)(Math.random() * (w - 6*40) + 3*40);
-		exit_y = (int)(Math.random() * (h - 6*40) + 3*40);
+		do
+		{
+		exit_x = (int)(Math.random() * (w/40 - 6) + 3);
+		exit_y = (int)(Math.random() * (h/40 - 6) + 3);
+		} while(bloecke[exit_x][exit_y] != 0);
 		
-		Exit solid = new Exit(solidBlocks, exit_x, exit_y, 1000, this);
-		actors.add(solid);
-		
-		for(int i = 0; i < actors.size(); i++)
-			if(solid.collidedWith(actors.elementAt(i)))
-			{
-				
-			}
+		Exit solid = new Exit(exitBlock, exit_x * 40, exit_y * 40, 1000, this);
+		actors.add(solid);		
 	}
+	
+	
 	/*
 	private void createNonSolid()
 	{
@@ -337,6 +418,7 @@ public class Arena extends JPanel implements Runnable, KeyListener, ActionListen
 	}
 	*/
 	
+	//Klassisches Bombermanfeld wird erzeugt.
 	private void classicField()
 	{
 		for(int i = 80; i < (w - 80); i = i + 80)
@@ -344,6 +426,7 @@ public class Arena extends JPanel implements Runnable, KeyListener, ActionListen
 			{
 				SolidBlock solid = new SolidBlock(solidBlocks, i, j, 1000, this);
 				actors.add(solid);
+				bloecke[i / 40][j / 40] = 1;
 			}				
 	}
 }
