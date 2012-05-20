@@ -1,4 +1,4 @@
-package Bomberman;
+package bomberman;
 
 import java.awt.image.BufferedImage;
 

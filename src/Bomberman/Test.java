@@ -1,4 +1,4 @@
-package Bomberman;
+package bomberman;
 
 public class Test {
 

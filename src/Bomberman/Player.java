@@ -1,19 +1,24 @@
-package Bomberman;
+package bomberman;
 
 import java.awt.image.BufferedImage;
 
 
 public class Player extends Objekt 
 {
-
+	private int maxBombs;
+	private Arena p;
+	
 	public Player(BufferedImage[] i, double x, double y, long delay, Arena p) 
 	{
 		super(i, x, y, delay, p);
+		
+		this.p = p;
+		maxBombs = 1;
 	}
 
 	public void doLogic(long delta) 
 	{
-		super.doLogic(delta);		
+		super.doLogic(delta);	
 	}
 
 	//Abhaenig von der Bewegungsrichtung des Spielers wird die Animation gesetzt.
@@ -63,26 +68,36 @@ public class Player extends Objekt
 			//wieder die alte Position zurueckgesetzt.
 			if(s instanceof SolidBlock)
 			{
-				if(Math.abs((getX() - s.getMaxX())) <= 5 && getX() < s.getMaxX() && ( getY() < s.getMaxY() && getMaxY() > s.getY()))
+				if(getX() > s.getCenterX() && getX() < s.getMaxX() && ( getY() < s.getMaxY() && getMaxY() > s.getY()))
 				{
+					this.setHorizontalSpeed(0);
 					x = s.getMaxX();
 					return true;
 				}
-				if(Math.abs((getMaxX() - s.getX())) <= 5 && getMaxX() > s.getX() && ( getY() < s.getMaxY() && getMaxY() > s.getY()))
+				if(getX() < s.getCenterX() && getMaxX() > s.getX() && ( getY() < s.getMaxY() && getMaxY() > s.getY()))
 				{
+					this.setHorizontalSpeed(0);
 					x = s.getX() - 30;
 					return true;
 				}
-				if(Math.abs((getY() - s.getMaxY())) <= 5 && getY() < s.getMaxY() && ( getX() < s.getMaxX() && getMaxX() > s.getX()))
+				if(getY() > s.getCenterY() && getY() < s.getMaxY() && ( getX() < s.getMaxX() && getMaxX() > s.getX()))
 				{
+					this.setVerticalSpeed(0);
 					y = s.getMaxY();
 					return true;
 				}
-				if(Math.abs((getMaxY() - s.getY())) <= 5 && getMaxY() > s.getY() && ( getX() < s.getMaxX() && getMaxX() > s.getX()))
+				if(getY() < s.getCenterY() && getMaxY() > s.getY() && ( getX() < s.getMaxX() && getMaxX() > s.getX()))
 				{
+					this.setVerticalSpeed(0);
 					y = s.getY() - 30;
 					return true;
 				}
+				else
+				{
+					this.setVerticalSpeed(0);
+					this.setHorizontalSpeed(0);
+				}
+					
 				return true;
 			}
 			
@@ -99,5 +114,14 @@ public class Player extends Objekt
 		return false;
 	}
 	
+	public void setMaxBombs(int max)
+	{
+		maxBombs = max;
+	}	
+	
+	public int getMaxBombs()
+	{
+		return maxBombs;
+	}
 }
 

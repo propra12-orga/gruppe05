@@ -1,4 +1,4 @@
-package Bomberman;
+package bomberman;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -13,7 +13,7 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class Arena extends JPanel implements Runnable, KeyListener, ActionListener
+public class Arena extends JPanel implements Runnable, KeyListener
 {
 
 	JFrame frame;
@@ -39,20 +39,26 @@ public class Arena extends JPanel implements Runnable, KeyListener, ActionListen
 	BufferedImage[] humanImages;
 	BufferedImage[] solidBlocks;
 	BufferedImage[] exitBlock;
+	BufferedImage[] bomb;
+	BufferedImage[] road;
+	BufferedImage[] explosion;
 	BufferedImage win_logo;
-	BufferedImage background;
+	//BufferedImage background;
   
 	//Speichert Tastendruecke
 	boolean up;
 	boolean down;
 	boolean left;
 	boolean right;
+	boolean setAble = true;
+	boolean layBomb;
 	
 	boolean hasWin = false;
 	
 	//Setzt die Geschwindigkeit der Spielfiguren
-	int speed = 140;
+	int speed = 100;
 	
+	int currentBombs = 0;
 	
 	public Arena(int w, int h)
 	{
@@ -69,6 +75,7 @@ public class Arena extends JPanel implements Runnable, KeyListener, ActionListen
 		//Die Arena wird in einem eigenen Frame angezeigt
 		frame = new JFrame("Bomber-Heinz");
 		frame.setLocation(100,100);
+		frame.setResizable(false);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.add(this);
 		frame.addKeyListener(this);
@@ -92,8 +99,11 @@ public class Arena extends JPanel implements Runnable, KeyListener, ActionListen
 		humanImages = loadPics("images/player/p1/bomber2.png", 16);
 		solidBlocks = loadPics("images/block_solid.jpg", 1);
 		exitBlock = loadPics("images/block_exit.jpg", 1);
+		bomb = loadPics("images/bomb/bombe1.gif", 5);
+		road = loadPics("images/block_road.jpg", 1);
+		explosion = loadPics("images/bomb/explosion/explosion_center.png", 4);
 		win_logo = loadPics("images/win_logo.png", 1) [0];
-		background = loadPics("images/background.jpg",1) [0];
+		//background = loadPics("images/background.jpg",1) [0];
 		
 		//Initialisiert die Vector-Objekte. Actors fuer Ligik und Bewegung und painters zum Zeichnen
 		actors  = new Vector<Objekt>();
@@ -108,7 +118,7 @@ public class Arena extends JPanel implements Runnable, KeyListener, ActionListen
 		createExit();
 		
 		//actors bekommt den menschl. Spieler.
-		actors.add(human);		
+		actors.add(human);	
 	}
 	
 	public void run() 
@@ -129,10 +139,10 @@ public class Arena extends JPanel implements Runnable, KeyListener, ActionListen
 			//Nachdem alle Befehle ausgefuehrt wurden, zeichnet sich das veraenderte Spielfeld
 			repaint();
 			
-			//Nach jedem Schleifendurchlauf wartet Java 10 Millisekunden. (Auch fuer fluessigen Spiellauf)
+			//Nach jedem Schleifendurchlauf wartet Java 3 Millisekunden. (Auch fuer fluessigen Spiellauf)
 			try 
 			{
-				Thread.sleep(10);
+				Thread.sleep(3);
 			} catch (InterruptedException e) {}	
 		}		
 	}
@@ -164,12 +174,20 @@ public class Arena extends JPanel implements Runnable, KeyListener, ActionListen
 		//Boolscher Wert um zu pruefen, ob Objekte kollidiert sind.
 		boolean collide;
 		
+		Explosion explo;
+		
 		//Jedes Objekt aus actors wird aufgerufen. Solange ein Vektor noch einen
 		//Nachfolger hat wird die Schleife ausgefuehrt. Jedes Vektor-Objekt ruft seine logic-Methode auf.
 		for(ListIterator<Objekt> it = actors.listIterator();it.hasNext();)
 		{
 			Objekt r = it.next();
 			r.doLogic(delta);
+			
+			if(r.remove)
+			{	
+				it.remove();
+				currentBombs--;
+			}
 		}
 		
 		//Prueft je zwei Objekte aus actors auf Kollision miteinander.
@@ -226,7 +244,24 @@ public class Arena extends JPanel implements Runnable, KeyListener, ActionListen
 		if(!left&&!right)
 		{
 			human.setHorizontalSpeed(0);
-		}		
+		}
+		
+		if(layBomb && currentBombs < human.getMaxBombs())
+		{
+			double bombX, bombY;
+			
+			bombX = 40 * ((int)human.getCenterX() / 40) + 5;
+			bombY = 40 * ((int)human.getCenterY() / 40) + 5;
+			
+			Bomb bombe = new Bomb(bomb, bombX, bombY, 400, this);
+			actors.add(bombe);
+			
+			currentBombs++;
+			
+			layBomb = false;
+		}
+		else
+			layBomb = false;
 	}
 	
 	//Berechnet, wie lange der letzte Schleifendurchlauf gedauert hat. Daraus wird die Framerate FPS errechnet.
@@ -252,7 +287,7 @@ public class Arena extends JPanel implements Runnable, KeyListener, ActionListen
 		}	
 				
 		//Zeichnet den Hintergrund
-		g.drawImage(background, 0, 0, this);
+		//g.drawImage(background, 0, 0, this);
 
 		//Jedes Objekt aus painters ruft seine draw-Methode auf.
 		for (ListIterator<Objekt> it = painter.listIterator(); it.hasNext();) 
@@ -302,13 +337,23 @@ public class Arena extends JPanel implements Runnable, KeyListener, ActionListen
 			down = true;
 		}
 
-		if(e.getKeyCode()==KeyEvent.VK_LEFT){
+		if(e.getKeyCode()==KeyEvent.VK_LEFT)
+		{
 			left = true;
 		}
 
-		if(e.getKeyCode()==KeyEvent.VK_RIGHT){
+		if(e.getKeyCode()==KeyEvent.VK_RIGHT)
+		{
 			right = true;
 		}		
+		
+		if(e.getKeyCode()==KeyEvent.VK_SPACE && !layBomb)
+		{
+			if(setAble)
+				layBomb = true;
+			
+			setAble = false;
+		}
 	}
 
 	public void keyReleased(KeyEvent e) 
@@ -331,17 +376,17 @@ public class Arena extends JPanel implements Runnable, KeyListener, ActionListen
 		if(e.getKeyCode()==KeyEvent.VK_RIGHT)
 		{
 			right = false;
+		}	
+		
+		if(e.getKeyCode()==KeyEvent.VK_SPACE && !layBomb)
+		{
+			setAble = true;
+			layBomb = false;
 		}
 	}
 
 	public void keyTyped(KeyEvent e)
 	{
-		
-	}
-
-	public void actionPerformed(ActionEvent e) 
-	{
-		
 	}
 
 	//Erzeugt den Spielfeldrand (solide Bloecke)
@@ -363,7 +408,11 @@ public class Arena extends JPanel implements Runnable, KeyListener, ActionListen
 					bloecke[i / 40][j / 40] = 1;
 				}
 				else
+				{
+					Road solid = new Road(road, i, j, 1000, this);
+					actors.add(solid);
 					bloecke[i / 40][j / 40] = 0;
+				}
 			}
 	}
 	

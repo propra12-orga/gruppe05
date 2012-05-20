@@ -1,4 +1,4 @@
-package Bomberman;
+package bomberman;
 
 import java.awt.Graphics;
 import java.awt.geom.Rectangle2D;
@@ -10,7 +10,7 @@ public abstract class Objekt extends Rectangle2D.Double implements Drawable, Mov
 	long animation = 0;
 	
 	Arena parent;
-	BufferedImage[] pics;
+	protected BufferedImage[] pics;
 	
 	int currentpic = 0;
   
