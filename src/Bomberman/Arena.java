@@ -3,6 +3,7 @@ import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ListIterator;
@@ -96,13 +97,13 @@ public class Arena extends JPanel implements Runnable, KeyListener
 		bloecke = new int[w / 40][h / 40];
 
 		//Laedt Bilddaten
-		humanImages = loadPics("images/player/p1/bomber2.png", 16);
-		solidBlocks = loadPics("images/block_solid.jpg", 1);
-		exitBlock = loadPics("images/block_exit.jpg", 1);
-		bomb = loadPics("images/bomb/bombe1.gif", 5);
-		road = loadPics("images/block_road.jpg", 1);
-		explosion = loadPics("images/bomb/explosion/explosion_center.png", 4);
-		win_logo = loadPics("images/win_logo.png", 1) [0];
+		humanImages = loadPics("./images/player/p1/bomber2.png", 16);
+		solidBlocks = loadPics("./images/block_solid.jpg", 1);
+		exitBlock = loadPics("./images/block_exit.jpg", 1);
+		bomb = loadPics("./images/bomb/bombe1.gif", 5);
+		road = loadPics("./images/block_road.jpg", 1);
+		explosion = loadPics("./images/bomb/explosion/explosion_center.png", 4);
+		win_logo = loadPics("./images/win_logo.png", 1) [0];
 		//background = loadPics("images/background.jpg",1) [0];
 		
 		//Initialisiert die Vector-Objekte. Actors fuer Ligik und Bewegung und painters zum Zeichnen
@@ -142,7 +143,7 @@ public class Arena extends JPanel implements Runnable, KeyListener
 			//Nach jedem Schleifendurchlauf wartet Java 3 Millisekunden. (Auch fuer fluessigen Spiellauf)
 			try 
 			{
-				Thread.sleep(3);
+				Thread.sleep(5);
 			} catch (InterruptedException e) {}	
 		}		
 	}
@@ -173,7 +174,6 @@ public class Arena extends JPanel implements Runnable, KeyListener
 	{	
 		//Boolscher Wert um zu pruefen, ob Objekte kollidiert sind.
 		boolean collide;
-		
 		Explosion explo;
 		
 		//Jedes Objekt aus actors wird aufgerufen. Solange ein Vektor noch einen
@@ -200,6 +200,13 @@ public class Arena extends JPanel implements Runnable, KeyListener
 				
 				//Kollidieren zwei Objekte, wird collide true gesetzt.
 				collide = ob1.collidedWith(ob2);
+
+				if(collide)
+					if(ob1.getCenterX() <= ob2.getX() )
+					{
+						System.out.println("FEHLER");
+						System.exit(0);
+					}
 				
 				//Prueft, ob der Spieler human auf den Ausgang gelaufen ist. Wenn ja, ist das Spiel gewonnen.
 				if(ob1 instanceof Player && ob2 instanceof Exit || ob1 instanceof Exit && ob2 instanceof Player)
@@ -253,7 +260,7 @@ public class Arena extends JPanel implements Runnable, KeyListener
 			bombX = 40 * ((int)human.getCenterX() / 40) + 5;
 			bombY = 40 * ((int)human.getCenterY() / 40) + 5;
 			
-			Bomb bombe = new Bomb(bomb, bombX, bombY, 400, this);
+			Bomb bombe = new Bomb(bomb, bombX, bombY, 500, this);
 			actors.add(bombe);
 			
 			currentBombs++;
@@ -306,12 +313,15 @@ public class Arena extends JPanel implements Runnable, KeyListener
 		BufferedImage source = null;
 		
 		//Die URL / Der Pfad der zu ladenden Bilddatei.
-		URL pic_url = getClass().getClassLoader().getResource(path);
-
+		//URL pic_url = ;
+		File file = new File(path);
+		
 		try 
 		{
+			
+			System.out.println(file.getCanonicalPath());
 			//Liest die Datei ein
-			source = ImageIO.read(pic_url);
+			source = ImageIO.read(file);
 		} catch (IOException e) {}
 		
 		for(int x=0;x<pics;x++)

@@ -68,25 +68,25 @@ public class Player extends Objekt
 			//wieder die alte Position zurueckgesetzt.
 			if(s instanceof SolidBlock)
 			{
-				if(getX() > s.getCenterX() && getX() < s.getMaxX() && ( getY() < s.getMaxY() && getMaxY() > s.getY()))
+				if(getX() > s.getX() && getX() < s.getMaxX() && ( getY() < s.getMaxY() && getMaxY() > s.getY()))
 				{
 					this.setHorizontalSpeed(0);
 					x = s.getMaxX();
 					return true;
 				}
-				if(getX() < s.getCenterX() && getMaxX() > s.getX() && ( getY() < s.getMaxY() && getMaxY() > s.getY()))
+				if(getX() < s.getMaxX() && getMaxX() > s.getX() && ( getY() < s.getMaxY() && getMaxY() > s.getY()))
 				{
 					this.setHorizontalSpeed(0);
 					x = s.getX() - 30;
 					return true;
 				}
-				if(getY() > s.getCenterY() && getY() < s.getMaxY() && ( getX() < s.getMaxX() && getMaxX() > s.getX()))
+				if(getY() > s.getY() && getY() < s.getMaxY() && ( getX() < s.getMaxX() && getMaxX() > s.getX()))
 				{
 					this.setVerticalSpeed(0);
 					y = s.getMaxY();
 					return true;
 				}
-				if(getY() < s.getCenterY() && getMaxY() > s.getY() && ( getX() < s.getMaxX() && getMaxX() > s.getX()))
+				if(getY() < s.getMaxY() && getMaxY() > s.getY() && ( getX() < s.getMaxX() && getMaxX() > s.getX()))
 				{
 					this.setVerticalSpeed(0);
 					y = s.getY() - 30;
