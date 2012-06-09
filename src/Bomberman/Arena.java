@@ -1,4 +1,4 @@
-package bomberman;
+package Bomberman;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -31,6 +31,7 @@ public class Arena extends JPanel implements Runnable, KeyListener
 	
 	//Menschl. Spielfigur
 	Player human;
+	Player human2;
 	
 	//Wir arbeiten mit Vectoren zur besseren Aufzaehlung, Zeichnen etc.
 	Vector<Objekt> actors;
@@ -54,12 +55,23 @@ public class Arena extends JPanel implements Runnable, KeyListener
 	boolean setAble = true;
 	boolean layBomb;
 	
+
+	boolean up2;
+	boolean down2;
+	boolean left2;
+	boolean right2;
+	boolean setAble2 = true;
+	boolean layBomb2;
+	
+	
 	boolean hasWin = false;
 	
 	//Setzt die Geschwindigkeit der Spielfiguren
 	int speed = 100;
+	int speed2 =100;
 	
 	int currentBombs = 0;
+	int currentBombs2 = 0;
 	
 	public Arena(int w, int h)
 	{
@@ -78,6 +90,7 @@ public class Arena extends JPanel implements Runnable, KeyListener
 		frame.setLocation(100,100);
 		frame.setResizable(false);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
 		frame.add(this);
 		frame.addKeyListener(this);
 		frame.pack();
@@ -112,7 +125,7 @@ public class Arena extends JPanel implements Runnable, KeyListener
 		
 		//Erzeugt den menschl. Spieler
 		human  = new Player(humanImages, 45, 45, 200, this);
-		
+		human2 = new Player(humanImages, 45*15.2, 45*11.8, 200, this); 
 		//Erzeugt das Spielfeld 
 		createEdge();
 		classicField();
@@ -120,6 +133,7 @@ public class Arena extends JPanel implements Runnable, KeyListener
 		
 		//actors bekommt den menschl. Spieler.
 		actors.add(human);	
+		actors.add(human2);
 	}
 	
 	public void run() 
@@ -132,17 +146,15 @@ public class Arena extends JPanel implements Runnable, KeyListener
 			
 			//Prueft Tastertureingaben, fuehrt Logiken (Kollisionen etc.) aus,
 			//bewegt Objekte und klont actors-Vektoren
-			
-			if(fps > 40)
-			{
 			checkKeys();
+			checkKeys2();
 			doLogic();
 			moveObjects();
 			cloneVectors();
 			
 			//Nachdem alle Befehle ausgefuehrt wurden, zeichnet sich das veraenderte Spielfeld
 			repaint();
-			}
+			
 			//Nach jedem Schleifendurchlauf wartet Java 3 Millisekunden. (Auch fuer fluessigen Spiellauf)
 			try 
 			{
@@ -190,6 +202,8 @@ public class Arena extends JPanel implements Runnable, KeyListener
 			{	
 				it.remove();
 				currentBombs--;
+				currentBombs2--;
+				
 			}
 		}
 		
@@ -204,6 +218,12 @@ public class Arena extends JPanel implements Runnable, KeyListener
 				//Kollidieren zwei Objekte, wird collide true gesetzt.
 				collide = ob1.collidedWith(ob2);
 
+				if(collide)
+					if(ob1.getCenterX() <= ob2.getX() )
+					{
+						System.out.println("FEHLER");
+						System.exit(0);
+					}
 				
 				//Prueft, ob der Spieler human auf den Ausgang gelaufen ist. Wenn ja, ist das Spiel gewonnen.
 				if(ob1 instanceof Player && ob2 instanceof Exit || ob1 instanceof Exit && ob2 instanceof Player)
@@ -250,7 +270,7 @@ public class Arena extends JPanel implements Runnable, KeyListener
 			human.setHorizontalSpeed(0);
 		}
 		
-		if(layBomb && currentBombs < human.getMaxBombs())
+		if(layBomb)
 		{
 			double bombX, bombY;
 			
@@ -264,9 +284,64 @@ public class Arena extends JPanel implements Runnable, KeyListener
 			
 			layBomb = false;
 		}
-		else
-			layBomb = false;
+//		else
+//			layBomb = false;
 	}
+	
+
+	//Prueft die Tastertureingabe. Wurde eine Pfeiltaste gedrueckt, so wird die Geschwindigkeit des Spieler
+	//human entsprechend gesetzt. Wurde keine Taste gedrueckt, so wird die Geschwindigkeit des Spielers
+	//human auf 0 gesetzt.
+	private void checkKeys2()
+	{			
+		if(up2 && !right2 && !left2)
+		{
+			human2.setVerticalSpeed(-speed2);
+		}
+		
+		if(down2 && !right2 && !left2)
+		{
+			human2.setVerticalSpeed(speed2);
+		}
+		
+		if(right2 && !up2 && !down2)
+		{
+			human2.setHorizontalSpeed(speed2);
+		}
+		
+		if(left2 && !up2 && !down2)
+		{
+			human2.setHorizontalSpeed(-speed2);
+		}
+		
+		if(!up2&&!down2)
+		{
+			human2.setVerticalSpeed(0);
+		}
+		
+		if(!left2&&!right2)
+		{
+			human2.setHorizontalSpeed(0);
+		}
+		
+		if(layBomb2 && currentBombs2 < human2.getMaxBombs())
+		{
+			double bombX, bombY;
+			
+			bombX = 40 * ((int)human2.getCenterX() / 40) + 5;
+			bombY = 40 * ((int)human2.getCenterY() / 40) + 5;
+			
+			Bomb bombe2 = new Bomb(bomb, bombX, bombY, 500, this);
+			actors.add(bombe2);
+			
+			currentBombs2++;
+			
+			layBomb2 = false;
+		}
+		else
+			layBomb2 = false;
+	}
+
 	
 	//Berechnet, wie lange der letzte Schleifendurchlauf gedauert hat. Daraus wird die Framerate FPS errechnet.
 	private void computeDelta() 
@@ -279,7 +354,7 @@ public class Arena extends JPanel implements Runnable, KeyListener
 	//Zeichenkomponente
 	public void paintComponent(Graphics g) 
 	{
-		super.paintComponent(g);	
+		super.paintComponent(g);
 		
 		//Hat der Spieler gewonnen (den Ausgang betreten) zeichnet Graphics nichts neues mehr. Nur eine
 		//Meldung (You Win!) wird ausgegeben.
@@ -315,11 +390,13 @@ public class Arena extends JPanel implements Runnable, KeyListener
 		
 		try 
 		{
+			
+			System.out.println(file.getCanonicalPath());
 			//Liest die Datei ein
 			source = ImageIO.read(file);
 		} catch (IOException e) {}
 		
-		for(int x = 0; x < pics; x++)
+		for(int x=0;x<pics;x++)
 		{
 			//Aus einem Bild (Filmstreifen) werden mehrere (quadratische) Teilbilder herausgeschnitten
 			//fuer moegliche Animationen
@@ -359,6 +436,35 @@ public class Arena extends JPanel implements Runnable, KeyListener
 			
 			setAble = false;
 		}
+		
+		if(e.getKeyCode()==KeyEvent.VK_W)
+		{
+			up2 = true;
+		}
+
+		if(e.getKeyCode()==KeyEvent.VK_S)
+		{
+			down2 = true;
+		}
+
+		if(e.getKeyCode()==KeyEvent.VK_A)
+		{
+			left2 = true;
+		}
+
+		if(e.getKeyCode()==KeyEvent.VK_D)
+		{
+			right2 = true;
+		}		
+		
+		if(e.getKeyCode()==KeyEvent.VK_E && !layBomb2)
+		{
+			if(setAble2)
+				layBomb2 = true;
+			
+			setAble2 = false;
+		}
+ 
 	}
 
 	public void keyReleased(KeyEvent e) 
@@ -383,11 +489,38 @@ public class Arena extends JPanel implements Runnable, KeyListener
 			right = false;
 		}	
 		
-		if(e.getKeyCode()==KeyEvent.VK_SPACE && !layBomb)
+		if(e.getKeyCode()==KeyEvent.VK_E && !layBomb)
 		{
 			setAble = true;
 			layBomb = false;
 		}
+		
+		if(e.getKeyCode()==KeyEvent.VK_W)
+		{
+			up2 = false;
+		}
+
+		if(e.getKeyCode()==KeyEvent.VK_S)
+		{
+			down2 = false;
+		}
+
+		if(e.getKeyCode()==KeyEvent.VK_A)
+		{
+			left2 = false;
+		}
+
+		if(e.getKeyCode()==KeyEvent.VK_D)
+		{
+			right2 = false;
+		}	
+		
+		if(e.getKeyCode()==KeyEvent.VK_E && !layBomb2)
+		{
+			setAble2 = true;
+			layBomb2 = false;
+		}
+
 	}
 
 	public void keyTyped(KeyEvent e)

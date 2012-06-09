@@ -1,4 +1,4 @@
-package bomberman;
+package Bomberman;
 
 import java.awt.Graphics;
 import java.awt.geom.Rectangle2D;

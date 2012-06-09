@@ -1,4 +1,4 @@
-package bomberman;
+package Bomberman;
 
 public interface Movable {
 
