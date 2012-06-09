@@ -132,6 +132,9 @@ public class Arena extends JPanel implements Runnable, KeyListener
 			
 			//Prueft Tastertureingaben, fuehrt Logiken (Kollisionen etc.) aus,
 			//bewegt Objekte und klont actors-Vektoren
+			
+			if(fps > 40)
+			{
 			checkKeys();
 			doLogic();
 			moveObjects();
@@ -139,7 +142,7 @@ public class Arena extends JPanel implements Runnable, KeyListener
 			
 			//Nachdem alle Befehle ausgefuehrt wurden, zeichnet sich das veraenderte Spielfeld
 			repaint();
-			
+			}
 			//Nach jedem Schleifendurchlauf wartet Java 3 Millisekunden. (Auch fuer fluessigen Spiellauf)
 			try 
 			{
@@ -201,12 +204,6 @@ public class Arena extends JPanel implements Runnable, KeyListener
 				//Kollidieren zwei Objekte, wird collide true gesetzt.
 				collide = ob1.collidedWith(ob2);
 
-				if(collide)
-					if(ob1.getCenterX() <= ob2.getX() )
-					{
-						System.out.println("FEHLER");
-						System.exit(0);
-					}
 				
 				//Prueft, ob der Spieler human auf den Ausgang gelaufen ist. Wenn ja, ist das Spiel gewonnen.
 				if(ob1 instanceof Player && ob2 instanceof Exit || ob1 instanceof Exit && ob2 instanceof Player)
@@ -318,13 +315,11 @@ public class Arena extends JPanel implements Runnable, KeyListener
 		
 		try 
 		{
-			
-			System.out.println(file.getCanonicalPath());
 			//Liest die Datei ein
 			source = ImageIO.read(file);
 		} catch (IOException e) {}
 		
-		for(int x=0;x<pics;x++)
+		for(int x = 0; x < pics; x++)
 		{
 			//Aus einem Bild (Filmstreifen) werden mehrere (quadratische) Teilbilder herausgeschnitten
 			//fuer moegliche Animationen
